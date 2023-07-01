@@ -1,0 +1,16 @@
+# Vite+React Frontend
+/node_modules
+/.npm
+/.yarn
+/.pnp
+/.yarnrc
+/yarn.lock
+/.eslintcache
+/.vite
+
+# Django Backend
+/__pycache__
+/.venv
+/db.sqlite3
+/media
+/staticfiles
