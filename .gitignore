@@ -7,11 +7,4 @@
 /yarn.lock
 /.eslintcache
 /.vite
-myenv/
 
-# Django Backend
-/__pycache__
-/.venv
-/db.sqlite3
-/media
-/staticfiles
