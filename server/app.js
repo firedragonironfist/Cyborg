@@ -3,15 +3,28 @@ const app = express();
 const bodyParser = require("body-parser");
 const port = 3000;
 const bcrypt = require("bcrypt");
+const jwt = require("jsonwebtoken");
 const dbConnect = require("./db/dbConnect");
 dbConnect();
+app.use((req,res,next)=>{
+  res.setHeader("Access-Control-Allow-Origin","*");
+  res.setHeader(
+    "Access-Control-Allow-Headers",
+    "Origin, X-Requested-With, Content, Accept, Content-Type, Authorization"
+  );
+  res.setHeader(
+    "Access-Control-Allow-Methods",
+    "GET, POST, PUT, DELETE, PATCH, OPTIONS"
+  );
+  next();
+})
 const User = require("./db/userModel");
 
 app.use(bodyParser.json());
-    app.use(bodyParser.urlencoded({extended: true}));
+app.use(bodyParser.urlencoded({ extended: true }));
 
-app.listen(port, () =>{
-    console.log(`Listening on port ${port}`);
+app.listen(port, () => {
+  console.log(`Listening on port ${port}`);
 });
 
 app.post("/register", (req, res) => {
@@ -41,6 +54,47 @@ app.post("/register", (req, res) => {
       res.status(500).send({
         message: "Password was not hashed Successfully",
         err,
+      });
+    });
+});
+
+app.post("/login", (req, res) => {
+  User.findOne({ email: req.body.email })
+    .then((user) => {
+      bcrypt
+        .compare(req.body.password, user.password)
+        .then((passwordCheck) => {
+          if (!passwordCheck) {
+            return res.status(400).send({
+              message: "Password does not match",
+              error,
+            });
+          }
+          const token = jwt.sign(
+            {
+              userId: user._id,
+              userEmail: user.email,
+            },
+            "RANDOM-TOKEN",
+            { expiresIn: "24h" }
+          );
+          res.status(200).send({
+            message: "Login Successful!",
+            email: user.email,
+            token,
+          });
+        })
+        .catch((error) => {
+          res.status(400).send({
+            message: "Password does not match",
+            error,
+          });
+        });
+    })
+    .catch((error) => {
+      res.status(400).send({
+        message: "email not found",
+        error,
       });
     });
 });
