@@ -4,10 +4,16 @@ const bodyParser = require("body-parser");
 const port = 3000;
 const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
+const auth = require('./auth');
 const dbConnect = require("./db/dbConnect");
 dbConnect();
+
+const User = require("./db/userModel");
+
+app.use(bodyParser.json());
+app.use(bodyParser.urlencoded({ extended: true }));
 app.use((req,res,next)=>{
-  res.setHeader("Access-Control-Allow-Origin","*");
+  res.setHeader("Access-Control-Allow-Origin", "*");
   res.setHeader(
     "Access-Control-Allow-Headers",
     "Origin, X-Requested-With, Content, Accept, Content-Type, Authorization"
@@ -18,10 +24,6 @@ app.use((req,res,next)=>{
   );
   next();
 })
-const User = require("./db/userModel");
-
-app.use(bodyParser.json());
-app.use(bodyParser.urlencoded({ extended: true }));
 
 app.listen(port, () => {
   console.log(`Listening on port ${port}`);
@@ -98,4 +100,13 @@ app.post("/login", (req, res) => {
       });
     });
 });
+
+app.get("/free-endpoint", (req,res)=>{
+  res.json({message : "You are free to access me anytime"});
+});
+
+app.get("/auth-endpoint",auth, (req,res)=>{
+  res.json({message: "You are authorised to access me"});
+});
+
 module.exports = app;
